@@ -10,19 +10,24 @@ import java.util.LinkedList;
 public class Counter {
 
     private LinkedList<String> documentWords;
-    private HashMap<Integer, String> indexes;
+    private HashMap<String, Integer> indexes;
 
     public Counter(LinkedList<String> in) {
         this.documentWords = in;
     }
 
-    public HashMap<Integer, String> countWords(){
+    public HashMap<String, Integer> countWords(){
+        indexes = new HashMap<>();
         int count = 0;
+        LinkedList<String> frontier = new LinkedList<>();
         while(this.documentWords.size() > 0) {
             for(String words : this.documentWords) {
-                count = Collections.frequency(this.documentWords, words);
-                this.documentWords.removeAll(Collections.singleton(words));
-                indexes.put(count, words);
+                if (!(frontier.contains(words))) {
+                    count = Collections.frequency(this.documentWords, words);
+                    indexes.put(words, count);
+                    System.out.println(this.indexes.toString());
+                    frontier.add(words);
+                }
             }
         }
         return this.indexes;
