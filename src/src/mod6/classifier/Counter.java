@@ -10,7 +10,7 @@ import java.util.LinkedList;
 public class Counter {
 
     private LinkedList<String> documentWords;
-    private HashMap<Integer, String> indexed;
+    private HashMap<Integer, String> indexes;
 
     public Counter(LinkedList<String> in) {
         this.documentWords = in;
@@ -22,10 +22,10 @@ public class Counter {
             for(String words : this.documentWords) {
                 count = Collections.frequency(this.documentWords, words);
                 this.documentWords.removeAll(Collections.singleton(words));
-                indexed.put(count, words);
+                indexes.put(count, words);
             }
         }
-        return this.indexed;
+        return this.indexes;
     }
 
 }
