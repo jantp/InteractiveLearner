@@ -1,5 +1,6 @@
 package mod6.classifier;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -30,7 +31,7 @@ public class Counter {
                 this.documentWords.removeAll(Collections.singleton(words));
             }
         }
-        System.out.println(this.indexes.toString());
+        //System.out.println(this.indexes.toString());
         return this.indexes;
     }
 
