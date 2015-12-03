@@ -16,7 +16,8 @@ public class DocumentReader {
         for (File trainingFile : trainingData.listFiles()) {
             String trainingFileName = trainingFile.getName();
             String extension = trainingFileName.substring(trainingFileName.lastIndexOf(".") + 1, trainingFileName.length());
-            System.out.print(extension);
+            System.out.println(trainingFileName);
+
             if (!trainingFile.isDirectory() && (extension.equals("txt"))) {
                 this.activateTrainer(tokenizer.tokenizeDocument(trainingFile), 1);
             }
@@ -25,7 +26,8 @@ public class DocumentReader {
 
     public void activateTrainer (LinkedList<String> document, int group) {
         Counter counter = new Counter(document);
-        System.out.println(counter.countWords().toString());
+        counter.countWords();
+        //System.out.println(counter.countWords().toString());
     }
 
     public static void main (String[] args) {
