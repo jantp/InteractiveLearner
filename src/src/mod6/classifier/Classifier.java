@@ -22,16 +22,16 @@ public class Classifier {
     public String classify (HashMap<String, Integer> document,
                             HashMap<String, Double> cat1,
                             HashMap<String, Double> cat2,
-                             HashMap<String, Double> catSizes) {
-        double cat1Val = (double) catSizes.get("1") / (double) catSizes.get("total");
-        double cat2Val = (double) catSizes.get("2") / (double) catSizes.get("total");
+                            HashMap<String, Double> catSizes,
+                            String[] catNames) {
+        double cat1Val = catSizes.get(catNames[0]) / (double) catSizes.get("total");
+        double cat2Val = catSizes.get(catNames[1]) / (double) catSizes.get("total");
         double p1 = cat1Val;
         double p2 = cat2Val;
         Iterator docIt = document.entrySet().iterator();
         while (docIt.hasNext()) {
             Map.Entry pair = (Map.Entry)docIt.next();
             if (cat1.get(pair.getKey()) != null && cat1.get(pair.getKey()) > 0.01) {
-
                 //p1 += ((double)cat1.get(pair.getKey()) + a) / (sum1 + a * (double)cat1.size());
                 //p1 = p1 + (double)Math.pow((double) (double)cat1.get(pair.getKey()), (double)(int)(Integer) pair.getValue());
                 p1 = p1 + cat1.get(pair.getKey()) * (double)(int)(Integer) pair.getValue();
@@ -44,6 +44,6 @@ public class Classifier {
             //System.out.println("-----------P1: "+p1);
             //System.out.println("-----------P2: "+p2);
         }
-        return (p1 > p2 ? "F" : "M");
+        return (p1 > p2 ? catNames[0] : catNames[1]);
     }
 }

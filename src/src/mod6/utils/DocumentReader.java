@@ -13,15 +13,20 @@ public class DocumentReader {
     private TextTokenizer tokenizer = new TextTokenizer();
     private HashMap catSizes = new HashMap<String, Double>();
     private HashMap<String, HashMap<String, Integer>> cats = new HashMap<String, HashMap<String, Integer>>();
+    private HashMap<String, HashMap<String, Integer>> voc = new HashMap<String, HashMap<String, Integer>>();
+    private String[] catNames = new String[2];
 
-    public DocumentReader () {
-        File trainingDir  = new File("C://bit/mod6/training/");
+    public DocumentReader (String documentFolder) {
+        File trainingDir  = new File(documentFolder+"/training/");
         this.cats.put("total", new HashMap<String, Integer>());
         catSizes.put("total", 0.0);
+        System.out.println("Training the classifier");
+        int i = 0;
         for (File catDir : trainingDir.listFiles()) {
-            if (catDir.isDirectory()) {
-                System.out.println(catDir.getName());
+            if (catDir.isDirectory() && i < catNames.length) {
                 String catName = catDir.getName();
+                catNames[i] = catName;
+                i++;
                 catSizes.put(catName, 0.0);
                 this.cats.put(catName, new HashMap<String, Integer>());
                 for (File trainingFile : catDir.listFiles()) {
@@ -33,24 +38,25 @@ public class DocumentReader {
                 }
             }
         }
+        this.createVocabulary();
+        System.out.println("Classifying documents");
+        File testingDir = new File(documentFolder+"/testing/");
+        classifyFile(testingDir);
+        System.out.println("Done");
+    }
+
+    public void classifyFile (File testingDir) {
         HashMap<String, HashMap<String, Double>> condProbCats = this.condProb();
-        System.out.println(cats.get("1"));
-        System.out.println(cats.get("2"));
-        int m = 0;
-        int f = 0;
-        File testingDir  = new File("C://bit/mod6/testing/2/");
         for (File testFile : testingDir.listFiles()) {
             if (!testFile.isDirectory()) {
                 Counter counter = new Counter(tokenizer.tokenizeDocument(testFile));
                 HashMap<String, Integer> testDoc = counter.countWords();
                 Classifier classifier = new Classifier(testDoc);
-                //double[] ps = classifier.classify(testDoc, condProbCats.get("1"), condProbCats.get("2"), catSizes);
-                String classification = classifier.classify(testDoc, condProbCats.get("1"), condProbCats.get("2"), catSizes);
-                m += (classification == "M" ? 1 : 0);
-                f += (classification == "F" ? 1 : 0);
+                String classification = classifier.classify(testDoc, condProbCats.get(catNames[0]), condProbCats.get(catNames[1]), catSizes, catNames);
+                System.out.println(testFile.getName()+": "+classification);
             }
         }
-        System.out.println("F: "+f+" M: "+m);
+
     }
 
     public double getIDF (String term) {
@@ -62,13 +68,8 @@ public class DocumentReader {
     }
 
     public HashMap<String, HashMap<String, Double>> condProb () {
-        //Loop over the categories
-            //calculate number of words
-            //calculate the size of the vocabulary
-            //Loop over the words
-                //get number of occurences
         HashMap<String, HashMap<String, Double>> condProbCats = new HashMap<String, HashMap<String, Double>>();
-        Iterator catsIt = cats.entrySet().iterator();
+        Iterator catsIt = voc.entrySet().iterator();
         while (catsIt.hasNext()) {
             Map.Entry pair = (Map.Entry)catsIt.next();
             String catName = (String) pair.getKey();
@@ -99,12 +100,12 @@ public class DocumentReader {
         while (it.hasNext()) {
             Map.Entry pair = (Map.Entry)it.next();
             if (this.cats.get(catName).get(pair.getKey()) != null) {
-                this.cats.get(catName).put((String) pair.getKey(), (Integer) this.cats.get(catName).get(pair.getKey())+(Integer) pair.getValue());
+                this.cats.get(catName).put((String) pair.getKey(), this.cats.get(catName).get(pair.getKey())+(Integer) pair.getValue());
             } else {
                 this.cats.get(catName).put((String) pair.getKey(), (Integer) pair.getValue());
             }
             if (this.cats.get("total").get(pair.getKey()) != null) {
-                this.cats.get("total").put((String) pair.getKey(), (Integer) this.cats.get("total").get(pair.getKey())+1);
+                this.cats.get("total").put((String) pair.getKey(), this.cats.get("total").get(pair.getKey())+1);
             } else {
                 this.cats.get("total").put((String) pair.getKey(), 1);
             }
@@ -115,8 +116,30 @@ public class DocumentReader {
         catSizes.put("total", (Double) catSizes.get("total") + 1);
     }
 
+    public void createVocabulary () {
+        Iterator catsIt = cats.entrySet().iterator();
+        while (catsIt.hasNext()) {
+            Map.Entry pair = (Map.Entry)catsIt.next();
+            String catName = (String) pair.getKey();
+            voc.put(catName, new HashMap<String, Integer>());
+            Iterator wordsIt = cats.get(catName).entrySet().iterator();
+            while (wordsIt.hasNext()) {
+                Map.Entry wordPair = (Map.Entry)wordsIt.next();
+                if((Integer)wordPair.getValue() > 3) {
+                    this.voc.get(catName).put((String)wordPair.getKey(), (Integer)wordPair.getValue());
+                }
+            }
+        }
+
+    }
+
     public static void main (String[] args) {
-        new DocumentReader();
+        System.out.println("Started");
+        if (args.length != 1) {
+            System.out.println("Usage: \"DocumentReader.java /path/to/dataset/folder\"");
+        } else {
+            new DocumentReader(args[0]);
+        }
     }
 }
 
