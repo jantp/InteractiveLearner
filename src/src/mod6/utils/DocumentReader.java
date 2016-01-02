@@ -10,7 +10,7 @@ import java.util.*;
  * Created by Jan on 12/2/2015.
  */
 public class DocumentReader {
-    private TextTokenizer tokenizer = new TextTokenizer();
+    /*private TextTokenizer tokenizer = new TextTokenizer();
     private HashMap catSizes = new HashMap<String, Double>();
     private HashMap<String, HashMap<String, Integer>> cats = new HashMap<String, HashMap<String, Integer>>();
     private HashMap<String, HashMap<String, Integer>> voc = new HashMap<String, HashMap<String, Integer>>();
@@ -85,7 +85,7 @@ public class DocumentReader {
                 Map.Entry wordPair = (Map.Entry)wordsIt.next();
                 String word = (String) wordPair.getKey();
                 double wordValue = (double) ((Integer) wordPair.getValue()).intValue();
-                double wordProb = this.getIDF(word) + ((wordValue + 1.0) / (countC + voc));
+                double wordProb = getIDF(word) * ((wordValue + 1.0) / (countC + voc));
                 condProbCats.get(catName).put(word, wordProb);
             }
         }
@@ -140,6 +140,6 @@ public class DocumentReader {
         } else {
             new DocumentReader(args[0]);
         }
-    }
+    }*/
 }
 

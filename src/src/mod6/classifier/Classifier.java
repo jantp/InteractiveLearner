@@ -1,49 +1,30 @@
 package mod6.classifier;
 
-import java.util.ArrayList;
+import mod6.utils.Vocabulary;
+
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
  * Created by Jan on 12/2/2015.
  */
 public class Classifier {
+    public static final double smoothing = 1.0;
 
-    private HashMap<String, Integer> content;
-    private double a = 1.0;
-    /**
-     * The constructor of the class used to classify documents
-     */
-    public Classifier (HashMap<String, Integer> in) {
-        this.content = in;
-    }
-
-    public String classify (HashMap<String, Integer> document,
-                            HashMap<String, Double> cat1,
-                            HashMap<String, Double> cat2,
-                            HashMap<String, Double> catSizes,
-                            String[] catNames) {
-        double cat1Val = catSizes.get(catNames[0]) / (double) catSizes.get("total");
-        double cat2Val = catSizes.get(catNames[1]) / (double) catSizes.get("total");
-        double p1 = cat1Val;
-        double p2 = cat2Val;
-        Iterator docIt = document.entrySet().iterator();
-        while (docIt.hasNext()) {
-            Map.Entry pair = (Map.Entry)docIt.next();
-            if (cat1.get(pair.getKey()) != null && cat1.get(pair.getKey()) > 0.01) {
-                //p1 += ((double)cat1.get(pair.getKey()) + a) / (sum1 + a * (double)cat1.size());
-                //p1 = p1 + (double)Math.pow((double) (double)cat1.get(pair.getKey()), (double)(int)(Integer) pair.getValue());
-                p1 = p1 + cat1.get(pair.getKey()) * (double)(int)(Integer) pair.getValue();
+    public static String testDocument (Vocabulary[] vocs, HashMap<String, Integer> doc) {
+        Double[] probs = new Double[2];
+        Double prob;
+        for (int i = 1; i < vocs.length; i++) {
+            probs[i-1] = 0.0;
+            for (Map.Entry<String, Integer> pair : doc.entrySet()) {
+                Integer countCat = vocs[i].getCount(pair.getKey());
+                Integer countBoth = vocs[1].getCount(pair.getKey()) + vocs[2].getCount(pair.getKey());
+                //TODO: add feature selection
+                prob = (countCat + smoothing)/(countBoth + vocs[i].getDocuments());
+                probs[i-1] += (Math.log10(prob)/Math.log(2));
             }
-            if (cat2.get(pair.getKey()) != null && cat2.get(pair.getKey()) > 0.01) {
-                //p2 += ((double)cat2.get(pair.getKey()) + a) / (sum2 + a * (double)cat2.size());
-                //p2 = p2 + Math.pow(cat2.get(pair.getKey()), (double)(int)(Integer) pair.getValue());
-                p2 = p2 + cat2.get(pair.getKey()) * (double)(int)(Integer) pair.getValue();
-            }
-            //System.out.println("-----------P1: "+p1);
-            //System.out.println("-----------P2: "+p2);
+            probs[i-1] += (Math.log10(((double) vocs[i].getDocuments() / (vocs[1].getDocuments() + vocs[2].getDocuments())))/Math.log(2));
         }
-        return (p1 > p2 ? catNames[0] : catNames[1]);
+        return ((probs[0] > probs[1] ? vocs[1].getName() : vocs[2].getName()));
     }
 }

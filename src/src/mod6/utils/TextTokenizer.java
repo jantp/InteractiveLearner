@@ -9,17 +9,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TextTokenizer {
-    public TextTokenizer () {
-
-    }
-
-    public String loadDocument (File trainingFile) {
+    public static String loadDocument (File trainingFile) {
         try {
             FileReader fr = new FileReader(trainingFile);
             BufferedReader br = new BufferedReader(fr);
             String document = "";
-            while (br.readLine() != null) {
-                document += br.readLine();
+            String line;
+            while ((line = br.readLine()) != null) {
+                document += line;
             }
             return document;
         } catch(FileNotFoundException e) {
@@ -30,7 +27,7 @@ public class TextTokenizer {
             return "";
         }
     }
-    public LinkedList<String> tokenizeDocument (File trainingFile) {
+    public static LinkedList<String> tokenizeDocument (File trainingFile) {
         String document = loadDocument(trainingFile).toLowerCase();
         String[] words = document.replaceAll("[^a-zA-Z ]", "").toLowerCase().split("\\s+");
         LinkedList<String> tokenizedDoc = new LinkedList<String>(Arrays.asList(words));
