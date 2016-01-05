@@ -19,6 +19,7 @@ public class IntLearner implements Observer {
     private JButton correctButton;
     private JButton wrongButton;
     private JPanel mainPanel;
+    private JButton browseButton;
     private Trainer trainer;
 
     private Integer currFile;
@@ -34,6 +35,7 @@ public class IntLearner implements Observer {
         this.folderConfirm.addActionListener(listener);
         this.correctButton.addActionListener(listener);
         this.wrongButton.addActionListener(listener);
+        this.browseButton.addActionListener(listener);
     }
 
     public void update (Observable observable, Object update) {
@@ -115,7 +117,7 @@ public class IntLearner implements Observer {
             } else if (e.getSource() == wrongButton) {
                 that.trainer.addDocument(that.files[currFile], that.trainer.getOpp(currClass));
                 that.classifyNext();
-            } else if (e.getSource() == "folderBrowse") {
+            } else if (e.getSource() == browseButton) {
                 that.folderField.setText(getDirectory());
             }
         }
