@@ -88,6 +88,18 @@ public class IntLearner implements Observer {
         frame.setVisible(true);
     }
 
+    public String getDirectory() {
+        JFileChooser fc = new JFileChooser("./");
+        fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        int returnVal = fc.showOpenDialog(null);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = fc.getSelectedFile();
+            return file.getAbsolutePath();
+        } else {
+            return null;
+        }
+    }
+
     private class ClickListener implements ActionListener {
         private IntLearner that = IntLearner.this;
         public void actionPerformed(ActionEvent e) {
@@ -103,6 +115,8 @@ public class IntLearner implements Observer {
             } else if (e.getSource() == wrongButton) {
                 that.trainer.addDocument(that.files[currFile], that.trainer.getOpp(currClass));
                 that.classifyNext();
+            } else if (e.getSource() == "folderBrowse") {
+                that.folderField.setText(getDirectory());
             }
         }
     }
