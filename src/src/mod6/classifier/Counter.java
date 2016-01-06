@@ -21,7 +21,7 @@ public class Counter {
         indexes = new HashMap<String, Integer>();
         int count = 0;
         LinkedList<String> frontier = new LinkedList<String>();
-        this.loadStopwords(new File("/Users/Tycho/Desktop/stopwords.txt"));
+        this.loadStopwords(new File("src/stopwords.txt"));
         while(this.documentWords.size() > 0) {
             String words =  this.documentWords.getFirst();
             if (!(frontier.contains(words)) && !stopwords.contains(words)) {
