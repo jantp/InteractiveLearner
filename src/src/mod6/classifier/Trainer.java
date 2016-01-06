@@ -24,10 +24,8 @@ public class Trainer extends Observable {
     private Integer smoothing = 1;
 
     public Trainer (String trainingdir) {
-        this.vocs[0] = new Vocabulary("one.getName");
-        this.vocs[1] = new Vocabulary("two.getName");
-
         this.trainingdir = trainingdir;
+        vocs = new Vocabulary[this.getNumDirs(new File(this.trainingdir+"/training/"))];
         //this.readDocuments(this.trainingdir);
     }
 
@@ -92,6 +90,14 @@ public class Trainer extends Observable {
 
     public int getOpp (String name) {
         return (getIndex(name) == 1 ? 1 : 0);
+    }
+
+    public int getNumDirs (File dir) {
+        int numSubs = 0;
+        for (File sub : dir.listFiles()) {
+            if (sub.isDirectory()) numSubs++;
+        }
+        return numSubs;
     }
 
     public static void main (String[] args) {
