@@ -74,7 +74,6 @@ public class Trainer extends Observable {
 
     public void addDocument (File trainingFile, int i) {
         HashMap<String, Integer> wordCounter = new Counter(TextTokenizer.tokenizeDocument(trainingFile)).countWords();
-        this.vocs[0].addDocument(wordCounter);
         this.vocs[i].addDocument(wordCounter);
     }
 

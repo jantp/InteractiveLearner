@@ -20,7 +20,7 @@ public class Classifier {
             for (Map.Entry<String, Integer> pair : doc.entrySet()) {
                 Integer countCat = vocs[i].getCount(pair.getKey());
                 Integer countBoth = vocs[0].getCount(pair.getKey()) + vocs[1].getCount(pair.getKey());
-                System.out.println("documents: "+vocs[i].getDocuments());
+                System.out.println("class" + i + "documents: "+vocs[i].getDocuments());
                 //TODO: add feature selection
                 prob = (countCat + smoothing)/(countBoth + vocs[i].getDocuments());
                 probs[i] += (Math.log10(prob) / Math.log(2));
