@@ -12,6 +12,7 @@ public class Vocabulary {
     private HashMap<String, Integer> occurences;
     private Integer documents;
     private String name;
+    private List<HashMap<String, Integer>> documentList = new ArrayList<HashMap<String, Integer>>();
 
     public Vocabulary (String name) {
         this.name = name;
@@ -33,6 +34,7 @@ public class Vocabulary {
 
     public void addDocument (HashMap<String, Integer> doc) {
         documents++;
+        documentList.add(doc);
         for (Map.Entry<String, Integer> pair : doc.entrySet()) {
             addWord(pair.getKey(), pair.getValue());
         }
@@ -40,6 +42,10 @@ public class Vocabulary {
 
     public Integer getCount (String word) {
         return (this.occurences.keySet().contains(word) ? this.occurences.get(word) : 0);
+    }
+
+    public List<HashMap<String, Integer>> getDocumentList () {
+        return this.documentList;
     }
 
     public HashMap<String, Integer> getOccurences () {
