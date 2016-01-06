@@ -14,22 +14,17 @@ public class Classifier {
     public static String testDocument (Vocabulary[] vocs, HashMap<String, Integer> doc) {
         Double[] probs = new Double[vocs.length];
         Double prob;
-
-        System.out.println("----------------------------");
-        System.out.println(vocs[0].getName());
-        System.out.println("----------------------------");
         for (int i = 0; i < vocs.length; i++) {
             probs[i] = 0.0;
             for (Map.Entry<String, Integer> pair : doc.entrySet()) {
                 Integer countCat = vocs[i].getCount(pair.getKey());
                 Integer countBoth = countTotal(vocs, pair.getKey());
-                //TODO: add feature selection
                 //tf
-                int totalTerms = 0;
-                for (int f : doc.values()) {
+                double totalTerms = 0.0;
+                for (double f : doc.values()) {
                     totalTerms += f;
                 }
-                int tf = pair.getValue() / totalTerms;
+                double tf = pair.getValue() / totalTerms;
                 // idf
                 int totalDocs = 1;
                 for(HashMap<String, Integer> tindoc : vocs[i].getDocumentList()) {
@@ -37,11 +32,11 @@ public class Classifier {
                         totalDocs++;
                     }
                 }
-                double tfidf = Math.log(getTotalDocs(vocs) / totalDocs);
-
+                double idf = Math.log(getTotalDocs(vocs) / totalDocs);
+                double tfidf = tf*idf;
                 // end of feature selection
-                prob = ((countCat + smoothing)/(countBoth + vocs[i].getDocuments())) * tfidf;
-                probs[i] += (Math.log10(prob) / Math.log(2));
+                prob = ((countCat + smoothing)/(countBoth + vocs[i].getDocuments()));
+                probs[i] += (Math.log10(prob) / Math.log(2)) * tfidf;
             }
             probs[i] += (Math.log10(((double) vocs[i].getDocuments() / (getTotalDocs(vocs))))/Math.log(2));
         }
@@ -66,7 +61,6 @@ public class Classifier {
     }
 
     public static String getMax (Double[] probs, Vocabulary[] vocs) {
-        //System.out.println(vocs[0].getName()+": "+probs[0] +" -- " +vocs[1].getName()+": "+probs[1] +" -- " +vocs[2].getName()+": "+probs[2] +" -- " );
         int max = 0;
         for (int i = 0; i < probs.length; i++) {
             if (probs[max] < probs[i]) max = i;

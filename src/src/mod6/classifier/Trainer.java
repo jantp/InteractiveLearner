@@ -25,7 +25,6 @@ public class Trainer extends Observable implements Runnable {
 
     public Trainer (String trainingdir) {
         this.trainingdir = trainingdir;
-        //this.readDocuments(this.trainingdir);
     }
 
     public void run () {
@@ -78,14 +77,16 @@ public class Trainer extends Observable implements Runnable {
         return this.classes;
     }
 
-    public void classifyFile (File testFile) {
+    public String classifyFile (File testFile) {
         if (!testFile.isDirectory()) {
             Counter counter = new Counter(TextTokenizer.tokenizeDocument(testFile));
             HashMap<String, Integer> testDoc = counter.countWords();
             String classification = Classifier.testDocument(this.vocs, testDoc);
             setChanged();
             notifyObservers("class -//- " + classification);
+            return classification;
         }
+        return null;
     }
 
     public void addDocument (File trainingFile, int i) {
@@ -129,7 +130,29 @@ public class Trainer extends Observable implements Runnable {
         if (args.length != 1) {
             System.out.println("Usage: \"Trainer.java /path/to/dataset/folder\"");
         } else {
-            new Trainer(args[0]);
+            Trainer trainer = new Trainer(args[0]);
+            trainer.readDocuments();
+            File testingDir = new File (args[0]+"/testing");
+            HashMap<String, int[]> quota = new HashMap<String, int[]>();
+            for (File catDir : testingDir.listFiles()) {
+                if (catDir.isDirectory()) {
+                    String catName = catDir.getName();
+                    quota.put(catName, new int[]{0,0});
+                    for (File trainingFile : catDir.listFiles()) {
+                        String trainingFileName = trainingFile.getName();
+                        String extension = trainingFileName.substring(trainingFileName.lastIndexOf(".") + 1, trainingFileName.length());
+                        if (!trainingFile.isDirectory() && (extension.equals("txt"))) {
+                            if (trainer.classifyFile(trainingFile).equals(catName)) {
+                                quota.get(catName)[0]++;
+                            } else {
+                                quota.get(catName)[1]++;
+                            }
+                        }
+                    }
+                    System.out.println(catName + " correct: "+quota.get(catName)[0] + " wrong: "+quota.get(catName)[1]);
+                }
+            }
+
         }
     }
 }
