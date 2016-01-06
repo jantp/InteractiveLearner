@@ -21,7 +21,23 @@ public class Classifier {
                 Integer countCat = vocs[i].getCount(pair.getKey());
                 Integer countBoth = countTotal(vocs, pair.getKey());
                 //TODO: add feature selection
-                prob = (countCat + smoothing)/(countBoth + vocs[i].getDocuments());
+                //tf
+                int totalTerms = 0;
+                for (int f : doc.values()) {
+                    totalTerms += f;
+                }
+                int tf = pair.getValue() / totalTerms;
+                // idf
+                int totalDocs = 1;
+                for(HashMap<String, Integer> tindoc : vocs[i].getDocumentList()) {
+                    if (tindoc.containsKey(pair.getKey())){
+                        totalDocs++;
+                    }
+                }
+                double tfidf = Math.log(getTotalDocs(vocs) / totalDocs);
+
+                // end of feature selection
+                prob = ((countCat + smoothing)/(countBoth + vocs[i].getDocuments())) * tfidf;
                 probs[i] += (Math.log10(prob) / Math.log(2));
             }
             probs[i] += (Math.log10(((double) vocs[i].getDocuments() / (getTotalDocs(vocs))))/Math.log(2));
@@ -53,14 +69,5 @@ public class Classifier {
             if (probs[max] < probs[i]) max = i;
         }
         return vocs[max].getName();
-    }
-
-    public static int tfCalc() {
-        return 0;
-    }
-
-    public static int idfCalc(Vocabulary[] vocs) {
-
-        return 0;
     }
 }
