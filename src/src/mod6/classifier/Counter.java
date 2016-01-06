@@ -11,7 +11,7 @@ public class Counter {
     private LinkedList<String> documentWords;
     private HashMap<String, Integer> indexes;
     private String words;
-    private Set<String> stopwords = new HashSet<>();
+    private Set<String> stopwords = new HashSet<String>();
 
     public Counter(LinkedList<String> in) {
         this.documentWords = in;

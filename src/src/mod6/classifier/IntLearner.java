@@ -43,9 +43,8 @@ public class IntLearner implements Observer {
             String[] updateS = ((String) update).split(" -//- ");
             System.out.println(updateS[0]);
             if (updateS[0].equals("progress")) {
-                System.out.println(update);
-                this.classifyProgress.setString("aaaaaaaaa");
-                this.classifyProgress.setValue(this.classifyProgress.getValue()+1);
+                this.DocumentText.setText("Busy");
+                this.classificationField.setText(updateS[1]);
             } else if (updateS[0].equals("class")) {
                 System.out.println(updateS[1]);
                 this.currClass = updateS[1];
@@ -61,8 +60,13 @@ public class IntLearner implements Observer {
     }
 
     public void classifyNext () {
+        System.out.println(files.length);
         currFile++;
         if (currFile < files.length) {
+            System.out.println("classifying 1");
+            while (files[currFile].isDirectory()) {
+                currFile++;
+            }
             trainer.classifyFile(files[currFile]);
         } else {
             this.DocumentText.setText("Done");
@@ -109,7 +113,8 @@ public class IntLearner implements Observer {
                 that.folderField.getText();
                 that.trainer = new Trainer(that.folderField.getText());
                 that.trainer.addObserver(that);
-                that.trainer.readDocuments();
+                //that.trainer.readDocuments();
+                (new Thread(that.trainer)).start();
                 that.classifyNext();
             } else if (e.getSource() == correctButton) {
                 that.trainer.addDocument(that.files[currFile], currClass);
