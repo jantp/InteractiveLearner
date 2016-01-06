@@ -14,6 +14,10 @@ public class Classifier {
     public static String testDocument (Vocabulary[] vocs, HashMap<String, Integer> doc) {
         Double[] probs = new Double[vocs.length];
         Double prob;
+
+        System.out.println("----------------------------");
+        System.out.println(vocs[0].getName());
+        System.out.println("----------------------------");
         for (int i = 0; i < vocs.length; i++) {
             probs[i] = 0.0;
             for (Map.Entry<String, Integer> pair : doc.entrySet()) {

@@ -40,32 +40,33 @@ public class Trainer extends Observable implements Runnable {
             File testingDir = new File(this.trainingdir+"/testing/");
             if (!trainingDir.isDirectory() || !testingDir.isDirectory()){
                 throw new FileNotFoundException();
-            }
-            this.classes = this.getDirs(trainingDir);
-            vocs = new Vocabulary[classes.length];
-            int i = 0;
-            int progress = Math.round(90.0f / classes.length);
-            for (File catDir : trainingDir.listFiles()) {
-                if (catDir.isDirectory() && i < vocs.length) {
-                    String catName = catDir.getName();
-                    setChanged();
-                    notifyObservers("progress -//- Training "+catName+" -//- "+progress);
-                    this.vocs[i] = new Vocabulary(catName);
-                    for (File trainingFile : catDir.listFiles()) {
-                        String trainingFileName = trainingFile.getName();
-                        String extension = trainingFileName.substring(trainingFileName.lastIndexOf(".") + 1, trainingFileName.length());
-                        if (!trainingFile.isDirectory() && (extension.equals("txt"))) {
-                            this.addDocument(trainingFile, i);
+            } else {
+                this.classes = this.getDirs(trainingDir);
+                vocs = new Vocabulary[classes.length];
+                int i = 0;
+                int progress = Math.round(90.0f / classes.length);
+                for (File catDir : trainingDir.listFiles()) {
+                    if (catDir.isDirectory() && i < vocs.length) {
+                        String catName = catDir.getName();
+                        setChanged();
+                        notifyObservers("progress -//- Training " + catName + " -//- " + progress);
+                        this.vocs[i] = new Vocabulary(catName);
+                        for (File trainingFile : catDir.listFiles()) {
+                            String trainingFileName = trainingFile.getName();
+                            String extension = trainingFileName.substring(trainingFileName.lastIndexOf(".") + 1, trainingFileName.length());
+                            if (!trainingFile.isDirectory() && (extension.equals("txt"))) {
+                                this.addDocument(trainingFile, i);
+                            }
                         }
+                        i++;
                     }
                 }
-                i++;
+                File[] files = testingDir.listFiles();
+                setChanged();
+                notifyObservers("progress -//- Classifying files -//- 0");
+                setChanged();
+                this.notifyObservers(files);
             }
-            File[] files = testingDir.listFiles();
-            setChanged();
-            notifyObservers("progress -//- Classifying files -//- 0");
-            setChanged();
-            this.notifyObservers(files);
         } catch (FileNotFoundException e) {
             setChanged();
             notifyObservers("progress -//- The directory is invalid -//- 0");
