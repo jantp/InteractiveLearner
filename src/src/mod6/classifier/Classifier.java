@@ -47,11 +47,20 @@ public class Classifier {
     }
 
     public static String getMax (Double[] probs, Vocabulary[] vocs) {
-        System.out.println(vocs[0].getName()+": "+probs[0] +" -- " +vocs[1].getName()+": "+probs[1] +" -- " +vocs[2].getName()+": "+probs[2] +" -- " );
+        //System.out.println(vocs[0].getName()+": "+probs[0] +" -- " +vocs[1].getName()+": "+probs[1] +" -- " +vocs[2].getName()+": "+probs[2] +" -- " );
         int max = 0;
         for (int i = 0; i < probs.length; i++) {
             if (probs[max] < probs[i]) max = i;
         }
         return vocs[max].getName();
+    }
+
+    public static int tfCalc() {
+        return 0;
+    }
+
+    public static int idfCalc(Vocabulary[] vocs) {
+
+        return 0;
     }
 }
