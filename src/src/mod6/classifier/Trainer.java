@@ -5,9 +5,7 @@ import mod6.utils.Vocabulary;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Observable;
+import java.util.*;
 
 /**
  * Created by Jan on 12/31/2015.
@@ -23,6 +21,7 @@ public class Trainer extends Observable implements Runnable {
     private Vocabulary[] vocs = new Vocabulary[2];
     private String trainingdir;
     private Integer smoothing = 1;
+    private String[] classes;
 
     public Trainer (String trainingdir) {
         this.trainingdir = trainingdir;
@@ -36,19 +35,21 @@ public class Trainer extends Observable implements Runnable {
     public void readDocuments () {
         try {
             setChanged();
-            notifyObservers("progress -//- Reading documents");
+            notifyObservers("progress -//- Reading documents -//- 5");
             File trainingDir  = new File(this.trainingdir+"/training/");
             File testingDir = new File(this.trainingdir+"/testing/");
             if (!trainingDir.isDirectory() || !testingDir.isDirectory()){
                 throw new FileNotFoundException();
             }
-            vocs = new Vocabulary[this.getNumDirs(trainingDir)];
+            this.classes = this.getDirs(trainingDir);
+            vocs = new Vocabulary[classes.length];
             int i = 0;
+            int progress = Math.round(90.0f / classes.length);
             for (File catDir : trainingDir.listFiles()) {
                 if (catDir.isDirectory() && i < vocs.length) {
                     String catName = catDir.getName();
                     setChanged();
-                    notifyObservers("progress -//- Training "+catName);
+                    notifyObservers("progress -//- Training "+catName+" -//- "+progress);
                     this.vocs[i] = new Vocabulary(catName);
                     for (File trainingFile : catDir.listFiles()) {
                         String trainingFileName = trainingFile.getName();
@@ -60,27 +61,24 @@ public class Trainer extends Observable implements Runnable {
                 }
                 i++;
             }
-            System.out.println("Classifying documents");
             File[] files = testingDir.listFiles();
-            //classifyFile(testingDir);
             setChanged();
-            notifyObservers("progress -//- Classifying files");
+            notifyObservers("progress -//- Classifying files -//- 0");
             setChanged();
             this.notifyObservers(files);
-            //System.out.println("Done");
         } catch (FileNotFoundException e) {
             setChanged();
-            notifyObservers("progress -//- The directory is invalid ");
+            notifyObservers("progress -//- The directory is invalid -//- 0");
         }
 
     }
 
+    public String[] getClasses () {
+        return this.classes;
+    }
+
     public void classifyFile (File testFile) {
-        System.out.println("classifying 2");
-
         if (!testFile.isDirectory()) {
-            System.out.println("classifying 3");
-
             Counter counter = new Counter(TextTokenizer.tokenizeDocument(testFile));
             HashMap<String, Integer> testDoc = counter.countWords();
             String classification = Classifier.testDocument(this.vocs, testDoc);
@@ -111,12 +109,18 @@ public class Trainer extends Observable implements Runnable {
         return (getIndex(name) == 1 ? 1 : 0);
     }
 
-    public int getNumDirs (File dir) {
-        int numSubs = 0;
+    public String[] getDirs (File dir) {
+        List<String> dirs = new ArrayList<String>();
         for (File sub : dir.listFiles()) {
-            if (sub.isDirectory()) numSubs++;
+            if (sub.isDirectory()) dirs.add(sub.getName());
         }
-        return numSubs;
+        String[] dirArr = new String[dirs.size()];
+        dirArr = dirs.toArray(dirArr);
+        return dirArr;
+    }
+
+    public Vocabulary[] getVocs () {
+        return this.vocs;
     }
 
     public static void main (String[] args) {

@@ -15,7 +15,6 @@ public class Classifier {
         Double[] probs = new Double[vocs.length];
         Double prob;
         for (int i = 0; i < vocs.length; i++) {
-            System.out.println(i);
             probs[i] = 0.0;
             for (Map.Entry<String, Integer> pair : doc.entrySet()) {
                 Integer countCat = vocs[i].getCount(pair.getKey());
@@ -47,7 +46,6 @@ public class Classifier {
     }
 
     public static String getMax (Double[] probs, Vocabulary[] vocs) {
-        System.out.println(vocs[0].getName()+": "+probs[0] +" -- " +vocs[1].getName()+": "+probs[1] +" -- " +vocs[2].getName()+": "+probs[2] +" -- " );
         int max = 0;
         for (int i = 0; i < probs.length; i++) {
             if (probs[max] < probs[i]) max = i;
