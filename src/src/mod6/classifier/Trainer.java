@@ -19,14 +19,13 @@ public class Trainer extends Observable {
         voc[2] = the second vocabulary
      */
 
-    private Vocabulary[] vocs = new Vocabulary[3];
+    private Vocabulary[] vocs = new Vocabulary[2];
     private String trainingdir;
     private Integer smoothing = 1;
 
     public Trainer (String trainingdir) {
-        this.vocs[0] = new Vocabulary("total");
-        this.vocs[1] = new Vocabulary("one.getName");
-        this.vocs[2] = new Vocabulary("two.getName");
+        this.vocs[0] = new Vocabulary("one.getName");
+        this.vocs[1] = new Vocabulary("two.getName");
 
         this.trainingdir = trainingdir;
         //this.readDocuments(this.trainingdir);
@@ -37,7 +36,7 @@ public class Trainer extends Observable {
         notifyObservers("progress");
         File trainingDir  = new File(this.trainingdir+"/training/");
         System.out.println("Training the classifier");
-        int i = 1;
+        int i = 0;
         setChanged();
         notifyObservers("progress");
         for (File catDir : trainingDir.listFiles()) {
@@ -93,7 +92,7 @@ public class Trainer extends Observable {
     }
 
     public int getOpp (String name) {
-        return (getIndex(name) == 1 ? 2 : 1);
+        return (getIndex(name) == 1 ? 1 : 0);
     }
 
     public static void main (String[] args) {
