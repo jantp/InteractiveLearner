@@ -4,14 +4,13 @@ import mod6.utils.TextTokenizer;
 import mod6.utils.Vocabulary;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Observable;
+import java.io.FileNotFoundException;
+import java.util.*;
 
 /**
  * Created by Jan on 12/31/2015.
  */
-public class Trainer extends Observable {
+public class Trainer extends Observable implements Runnable {
     /*
         An array of vocabularies;
         voc[0] = the total vocabulary,
@@ -22,42 +21,60 @@ public class Trainer extends Observable {
     private Vocabulary[] vocs = new Vocabulary[2];
     private String trainingdir;
     private Integer smoothing = 1;
+    private String[] classes;
 
     public Trainer (String trainingdir) {
         this.trainingdir = trainingdir;
-        vocs = new Vocabulary[this.getNumDirs(new File(this.trainingdir+"/training/"))];
         //this.readDocuments(this.trainingdir);
     }
 
+    public void run () {
+        this.readDocuments();
+    }
+
     public void readDocuments () {
-        setChanged();
-        notifyObservers("progress");
-        File trainingDir  = new File(this.trainingdir+"/training/");
-        System.out.println("Training the classifier");
-        int i = 0;
-        setChanged();
-        notifyObservers("progress");
-        for (File catDir : trainingDir.listFiles()) {
-            if (catDir.isDirectory() && i < vocs.length) {
-                String catName = catDir.getName();
-                this.vocs[i] = new Vocabulary(catName);
-                for (File trainingFile : catDir.listFiles()) {
-                    String trainingFileName = trainingFile.getName();
-                    String extension = trainingFileName.substring(trainingFileName.lastIndexOf(".") + 1, trainingFileName.length());
-                    if (!trainingFile.isDirectory() && (extension.equals("txt"))) {
-                        this.addDocument(trainingFile, i);
+        try {
+            setChanged();
+            notifyObservers("progress -//- Reading documents -//- 5");
+            File trainingDir  = new File(this.trainingdir+"/training/");
+            File testingDir = new File(this.trainingdir+"/testing/");
+            if (!trainingDir.isDirectory() || !testingDir.isDirectory()){
+                throw new FileNotFoundException();
+            }
+            this.classes = this.getDirs(trainingDir);
+            vocs = new Vocabulary[classes.length];
+            int i = 0;
+            int progress = Math.round(90.0f / classes.length);
+            for (File catDir : trainingDir.listFiles()) {
+                if (catDir.isDirectory() && i < vocs.length) {
+                    String catName = catDir.getName();
+                    setChanged();
+                    notifyObservers("progress -//- Training "+catName+" -//- "+progress);
+                    this.vocs[i] = new Vocabulary(catName);
+                    for (File trainingFile : catDir.listFiles()) {
+                        String trainingFileName = trainingFile.getName();
+                        String extension = trainingFileName.substring(trainingFileName.lastIndexOf(".") + 1, trainingFileName.length());
+                        if (!trainingFile.isDirectory() && (extension.equals("txt"))) {
+                            this.addDocument(trainingFile, i);
+                        }
                     }
                 }
+                i++;
             }
-            i++;
+            File[] files = testingDir.listFiles();
+            setChanged();
+            notifyObservers("progress -//- Classifying files -//- 0");
+            setChanged();
+            this.notifyObservers(files);
+        } catch (FileNotFoundException e) {
+            setChanged();
+            notifyObservers("progress -//- The directory is invalid -//- 0");
         }
-        System.out.println("Classifying documents");
-        File testingDir = new File(this.trainingdir+"/testing/");
-        File[] files = testingDir.listFiles();
-        //classifyFile(testingDir);
-        setChanged();
-        this.notifyObservers(files);
-        System.out.println("Done");
+
+    }
+
+    public String[] getClasses () {
+        return this.classes;
     }
 
     public void classifyFile (File testFile) {
@@ -92,12 +109,18 @@ public class Trainer extends Observable {
         return (getIndex(name) == 1 ? 1 : 0);
     }
 
-    public int getNumDirs (File dir) {
-        int numSubs = 0;
+    public String[] getDirs (File dir) {
+        List<String> dirs = new ArrayList<String>();
         for (File sub : dir.listFiles()) {
-            if (sub.isDirectory()) numSubs++;
+            if (sub.isDirectory()) dirs.add(sub.getName());
         }
-        return numSubs;
+        String[] dirArr = new String[dirs.size()];
+        dirArr = dirs.toArray(dirArr);
+        return dirArr;
+    }
+
+    public Vocabulary[] getVocs () {
+        return this.vocs;
     }
 
     public static void main (String[] args) {

@@ -15,7 +15,6 @@ public class Classifier {
         Double[] probs = new Double[vocs.length];
         Double prob;
         for (int i = 0; i < vocs.length; i++) {
-            System.out.println(i);
             probs[i] = 0.0;
             for (Map.Entry<String, Integer> pair : doc.entrySet()) {
                 Integer countCat = vocs[i].getCount(pair.getKey());
